@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extrahead %} 
+<title>Detalle</title>
+<link rel="stylesheet" href="{% static '/css/detalle.css' %}" >
+{% endblock extrahead%}
+
+{% block content %} 
+<h1 class="display-4" id="title">Detalle Producto</h1>
+<a type="button" class="btn btn-success" href="{% url 'productosIndex' %}">Volver</a>
+
+<div class="row">
+    <div class="col col-sm">
+        <img src="{{ producto.imagen.url }}" class="img-fluid rounded mx-auto d-block imagen_producto" alt="Sin Imágen">
+    </div>
+    <div class="col col-sm">
+        <table class="table">
+            <tbody>
+              <tr>
+                <th scope="row">ID</th>
+                <td>{{ producto.id }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Nombre</th>
+                <td>{{ producto.nombre }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Descripción</th>
+                <td>{{ producto.descripcion }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Caracteristicas</th>
+                <td>{{ producto.ref_categoria.nombre }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Precio</th>
+                <td>{{ producto.precio }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Stock</th>
+                <td>{{ producto.stock }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Estado</th>
+                <td>{{ producto.ref_estado.estado }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+    </div>
+
+</div>
+
+<style>
+  
+  /* Contenedor principal */
+  .contenedor {
+    max-width: 300px;
+    padding: 30px;
+  }
+  
+  /* Consulta */
+  #consulta {
+    width: 100%;
+    height: 200px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  /* Botón de consulta */
+  #botonConsulta {
+    display: block;
+    margin: 30px auto 0 auto;
+    padding: 10px 20px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    background-color: #000;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  /* Resultados de la consulta */
+  #resultadoConsulta {
+    background-color: #eee;
+    padding: 10px;
+    margin-top: 30px;
+    font-family: monospace;
+  }
+  
+  /* Cargando... */
+  .loading {
+    color: #666;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+    </style>
+
+
+
+
+
+<div class="contenedor">
+  <h1>Asistente virtual de tiendita</h1>
+  <div>
+    <textarea id="consulta"></textarea>
+  </div>
+  <button type="button" id="botonConsulta">Consultar</button>
+  <pre id="resultadoConsulta"></pre>
+</div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@google/generative-ai": "https://esm.run/@google/generative-ai"
+    }
+  }
+</script>
+
+
+<script type="module">    
+import { GoogleGenerativeAI } from "@google/generative-ai";
+const API_KEY = "AIzaSyANRiFo79Q-pr5dgqNM-ElLPzaj0a7RWmg";
+const genAI = new GoogleGenerativeAI(API_KEY);
+
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+
+
+document.querySelector("#botonConsulta").addEventListener("click", async () => {
+      desactivarBoton()
+      const consulta = document.querySelector("#consulta").value
+      const resultadoConsulta = document.querySelector("#resultadoConsulta")
+      try {
+        const result = await model.generateContent(consulta)
+        const response = await result.response
+        const text = response.text()
+        resultadoConsulta.innerHTML = text
+      } catch (error) {
+        resultadoConsulta.innerHTML = 'Problemas en la consulta'
+      }
+      activarBoton()
+    })
+
+    function desactivarBoton() {
+      const botonConsulta = document.querySelector("#botonConsulta")
+      botonConsulta.disabled = true
+      botonConsulta.innerText = "Consultando..."
+    }
+
+    function activarBoton() {
+      const botonConsulta = document.querySelector("#botonConsulta")
+      botonConsulta.disabled = false
+      botonConsulta.innerText = "Consultar"
+    }
+
+
+
+</script>
+
+
+
+
+
+{% endblock content%}
