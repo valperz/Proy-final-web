@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extrahead %} 
+<title>Detalle</title>
+<link rel="stylesheet" href="{% static '/css/detalle.css' %}" >
+{% endblock extrahead%}
+
+{% block content %} 
+
+
+<h1 class="display-4" id="title"><a type="button" class="btn btn-info"  href="{% url 'productosIndex' %}"><img src="/archivos/reply.svg" alt="Bootstrap" width="32" height="32"></a>Detalle Producto</h1>
+
+
+<div class="row">
+    <div class="col col-sm">
+        <img src="{{ producto.imagen.url }}" class="img-fluid rounded mx-auto d-block imagen_producto" alt="Sin Imágen">
+    </div>
+    <div class="col col-sm">
+        <table class="table">
+            <tbody>
+              <tr>
+                <th scope="row">ID</th>
+                <td>{{ producto.id }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Nombre</th>
+                <td>{{ producto.nombre }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Descripción</th>
+                <td>{{ producto.descripcion }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Caracteristicas</th>
+                <td>{{ producto.ref_categoria.nombre }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Precio</th>
+                <td>{{ producto.precio }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Stock</th>
+                <td>{{ producto.stock }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Estado</th>
+                <td>{{ producto.ref_estado.estado }}</td>
+              </tr>
+            </tbody>
+          </table>
+       
+          
+</div>
+
+
+  <div class="container">
+  <div class="row ">
+    <div id="titulo"> <h1 >Asistente virtual de tiendita</h1></div>
+    <div class="col col-sm-3">
+     
+       <div >
+       <textarea id="consulta"></textarea>
+       </div>
+     <button type="button" id="botonConsulta">Consultar</button>
+    
+     </div>
+     <div class="col col-md-9"><pre id="resultadoConsulta"></pre></div>
+  </div>
+  </div>
+ 
+
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@google/generative-ai": "https://esm.run/@google/generative-ai"
+      }
+    }
+  </script>
+  
+  
+  <script class="col col-sm" type="module">    
+  import { GoogleGenerativeAI } from "@google/generative-ai";
+  const API_KEY = "AIzaSyANRiFo79Q-pr5dgqNM-ElLPzaj0a7RWmg";
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+  
+  
+  document.querySelector("#botonConsulta").addEventListener("click", async () => {
+        desactivarBoton()
+        const consulta = document.querySelector("#consulta").value
+        const resultadoConsulta = document.querySelector("#resultadoConsulta")
+        try {
+          const result = await model.generateContent(consulta)
+          const response = await result.response
+          const text = response.text()
+          resultadoConsulta.innerHTML = text
+        } catch (error) {
+          resultadoConsulta.innerHTML = 'Problemas en la consulta'
+        }
+        activarBoton()
+      })
+  
+      function desactivarBoton() {
+        const botonConsulta = document.querySelector("#botonConsulta")
+        botonConsulta.disabled = true
+        botonConsulta.innerText = "Consultando..."
+      }
+  
+      function activarBoton() {
+        const botonConsulta = document.querySelector("#botonConsulta")
+        botonConsulta.disabled = false
+        botonConsulta.innerText = "Consultar"
+      }
+  
+  
+  </script>
+
+
+
+</div>
+
+
+
+
+
+
+{% endblock content%}
